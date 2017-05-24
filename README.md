@@ -1,1 +1,1 @@
-# Basic Kaggle - #1 Linear Regression on Boston Housing Prices
+# Kaggle Competitions - Attempts; Successes and Failures.
