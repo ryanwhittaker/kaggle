@@ -8,18 +8,23 @@ import statsmodels.formula.api as sm
 from lib import readCSV
 
 data_path = os.path.dirname(os.path.abspath(__file__)) + '/../data/'
+model_vars = ['GrLivArea', 'LotArea', 'Neighborhood', 'OverallQual', 'OverallCond', 'MSSubClass']
 
 def train(training_data):
-    return sm.ols(formula = 'SalePrice ~ GrLivArea + LotArea + Neighborhood + OverallQual + OverallCond', data = training_data).fit()
+    formula = 'SalePrice ~ ' + ' + '.join(model_vars)
+    print formula
+    return sm.ols(formula = formula, data = training_data).fit()
 
 def categorizeData(data):
-    category_fields = ['OverallQual', 'Neighborhood', 'OverallCond']
-    for field in category_fields:
+    standard_category_fields = ['Neighborhood', 'OverallQual', 'OverallCond']
+    for field in standard_category_fields:
         data[field] = data[field].astype('category')
+    data['MSSubClass'] = data['MSSubClass'].astype('category', categories = [20, 30, 40, 45, 50, 60, 70, 75, 80, 85, 90, 120, 150, 160, 180, 190])
     return data
 
 def fillNA(data, all_data):
-    return data.fillna(all_data.mean())
+    data = data.fillna(all_data.mean())
+    return data
 
 def run():
     # Read in the Data
@@ -42,7 +47,8 @@ def run():
     print model.summary()
 
     # Fill model and gather predictions. Store in SalePrice
-    real_data['SalePrice'] = model.predict(real_data[['Id', 'GrLivArea', 'LotArea', 'Neighborhood', 'OverallQual', 'OverallCond']])
+    model_vars.append('Id')
+    real_data['SalePrice'] = model.predict(real_data[model_vars])
 
     # Strip other fields down
     new_data = real_data[['Id', 'SalePrice']]
